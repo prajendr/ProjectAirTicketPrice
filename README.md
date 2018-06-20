@@ -236,33 +236,30 @@ ret6<-dplyr::filter(dat, TIAIR=='SHA/PEK')
 summary(lm(formula=TIAFAR/100~weekadv+tday+bday+TIVAIR+ClassFare,ret6))
 
 
-sqldf('select distinct TIVAIR,count (*),sum(fare)/count (*),sum(fare) from dat group by TIVAIR order by sum(fare) desc')
-sqldf('select distinct country,count (*),sum(fare)/count (*),sum(fare) from dat group by country order by sum(fare) desc')
-sqldf('select distinct TVAIR,count (*),sum(fare)/count (*),sum(fare) from dat group by country order by sum(fare) desc')
-sqldf('select distinct tyear,count (*),sum(fare)/count (*),sum(fare) from dat group by tyear order by sum(fare) desc')
-sqldf('select distinct TIVAIR,ClassAmex,ClassFare,count (*),sum(fare)/count (*),sum(fare) from ret1 group by TIVAIR,ClassAmex,ClassFare order by sum(fare) desc')
-sqldf('select distinct TIVAIR,ClassAmex,ClassFare,weekadv, count (*),sum(fare)/count (*),sum(fare) from ret1 group by TIVAIR,ClassAmex,ClassFare,weekadv order by sum(fare) desc')
+##Random Forest Methodology
+ret2<-ret1
+ret2$TITKTS<-NULL
+ret2$TITRFE<-NULL
+ret2$TIEXTN<-NULL
+ret2$`Job Family Group`<-NULL
+ret2$`Job Family`<-NULL
+ret2$Group<-NULL
+ret2$Division<-NULL
+ret2$`Business Unit`<-NULL
+ret2$`Cost Center`<-NULL
+ret2$TripPurpose<-NULL
+ret2$TripPurposeCode<-NULL
+ret2$`Email - Primary Work`<-NULL
 
-sqldf('select distinct weekadv, count (*),sum(fare)/count (*),sum(fare) from datUS group by weekadv order by sum(fare) desc')
-sqldf('select distinct TITKTT, count (*),sum(fare)/count (*),sum(fare) from dat group by TITKTT order by sum(fare) desc')
-sqldf('select distinct TIVENT, count (*),sum(fare)/count (*),sum(fare) from dat group by TIVENT order by sum(fare) desc')
+# Write CSV in R
+write.csv(ret2, file = "MyData.csv")
+getwd()
 
-
-##---------------------------------------------------------------
-d2<-dplyr::filter(amex4, TITAMT>0) 
-ggplot(d2,aes(d2$BookingYear,TITAMT/100))+geom_bar(stat="identity")
-
-###Ret 2
-dat$originairport=substring(dat$TIAIR, 1,3)
-ret7<-dplyr::filter(dat,originairport =='BOS')
-summary(lm(formula=TIAFAR/100~adv14+tday+bday+ClassAmex+TIVAIR,ret2))
-summary(lm(formula=fare~weekadv+tday+bday+ClassFare+TIVAIR,ret2))
-summary(lm(formula=TITAMT/100~weekadv+tday+bday+ClassFare+TIVAIR,ret2))
-
-
-sqldf('select distinct byear,count (*),sum(fare) from ret2 group by byear')
-summary(ret2)
-
+model1 <- randomForest(Fare ~ ., data = MyData, importance = TRUE)
+plot(model1)
+importance(model1)
+varImpPlot(model1) 
+model1
 
 
 
